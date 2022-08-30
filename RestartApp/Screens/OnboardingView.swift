@@ -9,6 +9,9 @@ import SwiftUI
 
 struct OnboardingView: View {
     @AppStorage("onboarding") var isOnboardActive: Bool = true
+    @State var btnMaxLimit: Double = UIScreen.main.bounds.size.width - 80
+    @State var btnOffset: Double = 0
+    
     var body: some View {
         ZStack{
             Color("ColorBlue")
@@ -50,7 +53,7 @@ struct OnboardingView: View {
                     HStack{
                         Capsule()
                             .fill(Color("ColorRed"))
-                            .frame(width: 80)
+                            .frame(width: 80 + btnOffset)
                         Spacer()
                     }//: HSTACK
                     
@@ -72,9 +75,24 @@ struct OnboardingView: View {
                         }//: ZSTACK
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80, alignment: .center)
-                        .onTapGesture {
-                            isOnboardActive = false
-                        }
+                        .offset(x: btnOffset)
+                        .gesture(
+                            DragGesture()
+                                .onChanged({ gesture in
+                                    if gesture.translation.width > 0 && gesture.translation.width <= btnMaxLimit - 30{
+                                        btnOffset = gesture.translation.width
+                                    }
+                                })
+                                .onEnded({ _ in
+                                    if btnOffset <= btnMaxLimit/2.0 {
+                                        btnOffset = 0
+                                    }
+                                    else {
+                                        btnOffset = btnMaxLimit - 30
+                                        isOnboardActive = false
+                                    }
+                                })
+                        )
                         Spacer()
                     }//: HSTACK
                     
